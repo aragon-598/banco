@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -39,7 +40,7 @@ public class ClienteController {
 
         clientes = service.getAllClientes();
 
-        if (clientes.isEmpty() || clientes == null) {
+        if (clientes == null) {
             
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No hay clientes registrados");
 
@@ -89,12 +90,30 @@ public class ClienteController {
 
     }
 
+    @PutMapping(path="/editar")
+    public ResponseEntity<?> editarUsuario(@RequestBody Cliente clienteEditado) {
+        if (clienterepository.existsByDui(clienteEditado.getDui())) {
+            Cliente oldCliente = clienterepository.findByDui(clienteEditado.getDui()).get();
+
+            oldCliente.setApellidos(clienteEditado.getApellidos());
+            oldCliente.setNombre(clienteEditado.getNombre());
+            clienterepository.save(oldCliente);
+            return ResponseEntity.ok("Datos del cliente actualizados");
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No existe usuario con dui"+clienteEditado.getDui());
+    }
+
     @DeleteMapping(value = "/deleteclient/{codCliente}")
     public ResponseEntity<String> eliminarCliente(@PathVariable("codCliente") int codCliente) {
         
-        service.eliminar(codCliente);
+        if (clienterepository.existsById(codCliente)) {
+            service.eliminar(codCliente);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Cliente eliminado con éxito");
+            return ResponseEntity.status(HttpStatus.OK).body("Cliente eliminado con éxito");
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No exite el usuario");
 
     }
     

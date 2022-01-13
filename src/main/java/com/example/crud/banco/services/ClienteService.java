@@ -57,7 +57,7 @@ public class ClienteService {
         try {
             existeDui = clienterepository.existsByDui(cliente.getDui());
 
-            if (existeDui) 
+            if (!existeDui) 
                 clienterepository.save(cliente);
             
         } catch (Exception e) {
