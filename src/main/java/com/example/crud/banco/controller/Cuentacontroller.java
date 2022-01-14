@@ -7,9 +7,11 @@ import com.example.crud.banco.entities.Cuenta;
 import com.example.crud.banco.repository.CuentaRepository;
 import com.example.crud.banco.services.CuentaService;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/cuenta")
+@CrossOrigin
 public class Cuentacontroller {
     
     @Autowired
@@ -30,7 +33,7 @@ public class Cuentacontroller {
     CuentaRepository repository;
 
     @GetMapping(path = "/cuentasbycliente/{codCliente}")
-    public ResponseEntity<Object> getCuentasByCodCliente(@PathVariable("codCliente") int codCliente) {
+    public ResponseEntity<Object> getCuentasByCodCliente(@PathVariable("codCliente") Integer codCliente) {
 
         List<Cuenta> cuentasByClientes = new ArrayList<>();
 
@@ -59,6 +62,15 @@ public class Cuentacontroller {
     public ResponseEntity<String> crearCuenta(@RequestBody Cuenta newCuenta) {
         
         if(newCuenta != null){
+            newCuenta.setSaldo(newCuenta.getMontoApertura());
+            String idCuenta = RandomStringUtils.randomAlphanumeric(10);
+
+            while (repository.existsByNumeroCuenta(idCuenta)) {
+                idCuenta = RandomStringUtils.randomAlphanumeric(10);
+            }
+
+            newCuenta.setNumeroCuenta(idCuenta);
+
             service.guardarCuenta(newCuenta);
             return ResponseEntity.status(HttpStatus.OK).body("Cuenta creada con exito");
         }

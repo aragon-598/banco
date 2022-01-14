@@ -11,6 +11,7 @@ import com.example.crud.banco.services.TransaccionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/transaccion")
+@CrossOrigin
 public class TransaccionController {
 
     @Autowired
@@ -61,23 +63,27 @@ public class TransaccionController {
             // service.guardarTransaccion(nuevaTransaccion);
             // return ResponseEntity.status(HttpStatus.OK).body("Transaccion exitosa");
             if (cuentaRepository.existsById(nuevaTransaccion.getNumeroCuenta().getNumeroCuenta())) {
-                Cuenta cuenta = cuentaRepository.getById(nuevaTransaccion.getNumeroCuenta().getNumeroCuenta());
+                Cuenta cuenta = cuentaRepository.findById(nuevaTransaccion.getNumeroCuenta().getNumeroCuenta()).get();
                 if (cuenta.getEstadoCuenta()=='A') {
                     if (nuevaTransaccion.getIdTipoTransaccion().getIdTipoTransaccion() == 1) {
                         //DEPOSITO
                         cuenta.setSaldo(cuenta.getSaldo()+nuevaTransaccion.getValorMonetario());
     
                         cuentaRepository.save(cuenta);
-                        service.guardarTransaccion(nuevaTransaccion);
+                        repository.save(nuevaTransaccion);
     
                         return ResponseEntity.status(HttpStatus.OK).body("Deposito exitoso");
                     }
-                    else {
+                    else if (nuevaTransaccion.getIdTipoTransaccion().getIdTipoTransaccion() == 2) {
                         //Retiro
                         if(nuevaTransaccion.getValorMonetario()>cuenta.getSaldo())
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Estás tratando de retirar una cantidad más grande de tu saldo actual");
                         
-                        cuenta.setSaldo(cuenta.getSaldo()-nuevaTransaccion.getValorMonetario());
+                        double nuevoSaldo = cuenta.getSaldo() - nuevaTransaccion.getValorMonetario();
+
+                        cuenta.setSaldo(nuevoSaldo);
+                        cuentaRepository.save(cuenta);
+                        repository.save(nuevaTransaccion);
 
                         return ResponseEntity.ok("Retiro exitoso");
                     }
