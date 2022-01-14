@@ -16,4 +16,7 @@ public interface CuentaRepository extends JpaRepository<Cuenta,String>{
 
     @Query("SELECT c FROM Cuenta c WHERE c.codCliente.codCliente = :codCliente")
     public List<Cuenta> findCuentasByIdCliente(@Param("codCliente") int codCliente);
+
+    @Query("SELECT c FROM Cuenta c WHERE c.codCliente.dui = :dui")
+    public List<Cuenta> findCuentasByDui(@Param("dui") String dui);
 }

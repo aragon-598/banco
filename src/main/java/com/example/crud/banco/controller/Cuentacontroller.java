@@ -45,6 +45,20 @@ public class Cuentacontroller {
         return ResponseEntity.status(HttpStatus.OK).body(cuentasByClientes);
 
     }
+
+    @GetMapping(path = "/cuentasbydui/{dui}")
+    public ResponseEntity<Object> getCuentasByDui(@PathVariable("dui") String dui) {
+
+        List<Cuenta> cuentasByDui = new ArrayList<>();
+
+        cuentasByDui = repository.findCuentasByDui(dui);
+
+        if(cuentasByDui==null)
+            return ResponseEntity.status(HttpStatus.OK).body("No existen cuentas para el usuario con ese dui");
+        
+        return ResponseEntity.status(HttpStatus.OK).body(cuentasByDui);
+
+    }
     
     @GetMapping(path="/cuentabynumerocuenta/{numeroCuenta}")
     public ResponseEntity<Object> getCuentaByNumeroCuenta(@PathVariable("numeroCuenta") String numeroCuenta) {

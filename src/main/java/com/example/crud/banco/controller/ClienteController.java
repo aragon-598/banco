@@ -72,6 +72,24 @@ public class ClienteController {
 
     }
 
+    @GetMapping(value="/bydui/{dui}")
+    public ResponseEntity<Object> getByDui(@PathVariable("dui") String dui) {
+        
+        Cliente cliente = null;
+
+        boolean existeByDui = clienterepository.existsByDui(dui);
+
+        if (!existeByDui) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("No existe el usuario"));
+
+        } else {
+            cliente = clienterepository.findByDui(dui).get();
+            return ResponseEntity.status(HttpStatus.OK).body(cliente);
+
+        }
+
+    }
+
     @PostMapping(value="/newclient")
     public ResponseEntity<Object> nuevoCliente(@RequestBody Cliente newCliente) {
         
